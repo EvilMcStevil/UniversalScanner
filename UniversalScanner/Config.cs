@@ -7,36 +7,25 @@ using System.Threading.Tasks;
 
 namespace UniversalScanner
 {
-    public static class Config
+    public class Config : IConfig
     {
-        public static bool enableIPv6;
-        public static bool forceLinkLocal;
-        public static bool enableIPv4;
-        public static bool forceZeroConf;
-        public static bool forceGenericProtocols;
-        public static bool clearOnRescan;
-        public static bool showDebugWarning;
-        public static bool portSharing;
-        public static bool onvifVerbatim;
-        public static bool dahuaNetScan;
+        // default values
+        public bool enableIPv6 { get; } = false;
+        public bool forceLinkLocal { get; } = true;
+        public bool enableIPv4 { get; } = true;
+        public bool forceZeroConf { get; } = false;
+        public bool forceGenericProtocols { get; } = false;
+        public bool clearOnRescan { get; } = false;
+        public bool showDebugWarning { get; } = true;
+        public bool portSharing { get; } = true;
+        public bool onvifVerbatim { get; } = false;
+        public bool dahuaNetScan { get; } = false;
 
         private static readonly string path = @"Software\UniversalScanner";
 
-        static Config()
+        public Config()
         {
             RegistryKey key;
-
-            // default values
-            enableIPv6 = false;
-            forceLinkLocal = true;
-            enableIPv4 = true;
-            forceZeroConf = false;
-            forceGenericProtocols = false;
-            clearOnRescan = false;
-            showDebugWarning = true;
-            portSharing = true;
-            onvifVerbatim = false;
-            dahuaNetScan = false;
 
             key = Registry.CurrentUser.openOrCreate(path);
             if (key != null)

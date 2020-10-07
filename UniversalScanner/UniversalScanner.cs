@@ -42,8 +42,9 @@ namespace UniversalScanner
             "Type", 
             "Unique ID"
         };
+        private readonly IConfig Config;
 
-        public ScannerWindow()
+        public ScannerWindow(IConfig config)
         {
             InitializeComponent();
 
@@ -63,6 +64,7 @@ namespace UniversalScanner
             dataGridView1.Columns[(int)Columns.Version].Visible = false;
 
             protocolFormat = new Dictionary<string, int>();
+            this.Config = config;
         }
 
         private void scanButton_Click(object sender, EventArgs e)

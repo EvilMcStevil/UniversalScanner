@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,34 +17,24 @@ namespace UniversalScanner
         [STAThread]
         static void Main()
         {
-            ScannerWindow viewer;
-            ScanEngine[] engines;
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            viewer = new ScannerWindow();          
 
-            engines = new ScanEngine[] {
-                new UPnP(),
-                new Wsdiscovery(),
-                new Dahua1(),
-                new Dahua2(),
-                new Hikvision(),
-                new Axis(),
-                new Bosch(),
-                new GoogleCast(),
-                new Hanwha(),
-                new Vivotek(),
-                new Sony(),
-                new Ubiquiti(),
-                new _360Vision(),
-                new NiceVision(),
-                new Panasonic(),
-                new Arecont(),
-                new GigEVision()
-            };
-            foreach(var engine in engines)
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(configure => configure.AddDebug());
+
+            serviceCollection.ConfigureScanners();
+
+            serviceCollection.AddTransient<ScannerWindow>();
+            serviceCollection.AddSingleton<IConfig, Config>();
+            
+            ServiceProvider provider = serviceCollection.BuildServiceProvider();
+
+            ScannerWindow viewer = provider.GetService<ScannerWindow>();
+
+
+            foreach (var engine in provider.GetServices<IScanner>())
             {
                 engine.registerViewer(viewer);
             }

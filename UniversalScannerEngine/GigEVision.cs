@@ -4,6 +4,7 @@ using System.Text;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Drawing;
+using Microsoft.Extensions.Logging;
 
 /*
  * @description: UniversalScanner discovery protocol
@@ -11,9 +12,11 @@ using System.Drawing;
 
 namespace UniversalScanner
 {
-    class GigEVision : ScanEngine
+    class GigEVision : ScanEngine, IScanner
     {
         private const int port = 3956;
+
+        
 
         private UInt16 requestCounter;
 
@@ -236,8 +239,12 @@ namespace UniversalScanner
                 return "GigEVision";
             }
         }
-        public GigEVision()
+
+
+        public ILogger<GigEVision> Logger { get; }
+        public GigEVision(ILogger<GigEVision> logger, IConfig config) : base(logger, config)
         {
+            this.Logger = logger;
             requestCounter = 0;
 
             //listenUdpGlobal(port);
@@ -275,7 +282,7 @@ namespace UniversalScanner
 
             if (data.Length != typeof(GigEVisionAckn).StructLayoutAttribute.Size)
             {
-                Logger.WriteLine(Logger.DebugLevel.Warn, String.Format("Warning: GigEVision.reciever(): Invalid size packet recieved from {0}", from.ToString()));
+                Logger.LogWarning( String.Format("Warning: GigEVision.reciever(): Invalid size packet recieved from {0}", from.ToString()));
                 return;
             }
 
@@ -283,7 +290,7 @@ namespace UniversalScanner
 
             if (NetworkUtils.NetworkToHostOrder16(answer.payloadLen) != data.Length - 8)
             {
-                Logger.WriteLine(Logger.DebugLevel.Warn, String.Format("Warning: GigEVision.reciever(): Invalid size payload length value (got value {0} while value {1} was expected) recieved from {2}",
+                Logger.LogWarning( String.Format("Warning: GigEVision.reciever(): Invalid size payload length value (got value {0} while value {1} was expected) recieved from {2}",
                     NetworkUtils.NetworkToHostOrder16(answer.payloadLen), data.Length - 8, from.ToString()));
                 return;
             }
@@ -293,7 +300,7 @@ namespace UniversalScanner
 
             if (version != 0x00010002)
             {
-                Logger.WriteLine(Logger.DebugLevel.Warn, String.Format("Warning: GigEVision.reciever(): Invalid packet version (got value 0x{0:X8} while value 0x{1:X8} was expected) recieved from {2}",
+                Logger.LogWarning( String.Format("Warning: GigEVision.reciever(): Invalid packet version (got value 0x{0:X8} while value 0x{1:X8} was expected) recieved from {2}",
                     version, 0x00010002, from.ToString()));
             }
 
